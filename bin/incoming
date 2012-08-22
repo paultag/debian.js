@@ -61,5 +61,7 @@ payload = _get_vitals(email)
 if payload['package'] in special_cases:
     payload = special_cases[payload['package']](payload)
 
+if payload['id'] is None:
+    sys.exit(1)
 
 open(payload['id'], 'w').write(json.dumps(payload))
