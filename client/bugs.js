@@ -3,6 +3,6 @@ var     io = require('socket.io-client'),
         port: 9999
     });
 
-socket.on('rfs', function(rfs) {
+socket.on('bug', function(rfs) {
     console.log(rfs);
 });
