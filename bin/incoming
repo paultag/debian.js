@@ -64,4 +64,6 @@ if payload['package'] in special_cases:
 if payload['id'] is None:
     sys.exit(1)
 
-open(payload['id'], 'w').write(json.dumps(payload))
+fd = open(payload['id'], 'w')
+fd.write(json.dumps(payload))
+fd.close()

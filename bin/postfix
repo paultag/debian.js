@@ -1,7 +1,4 @@
 #!/bin/bash
 
-if [ ! -d /var/lib/debian.js/incoming ]; then
-    mkdir -p /var/lib/debian.js/incoming
-fi
-
+cd /var/lib/debian.js/incoming
 /home/tag/dev/local/debian.js/bin/incoming $@
