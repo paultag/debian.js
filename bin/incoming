@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+from email.parser import Parser
+import json
+import sys
+import re
+
+p = Parser()
+email = p.parse(sys.stdin)
+
+
+def _get_vitals(obj):
+    action = None
+    bugno = None
+    package = None
+    description = obj['Subject']
+    sender = obj['From']
+    klasse = "unknown"
+    msid = obj['Message-Id']
+
+    if "X-Debian-PR-Message" in obj:
+        action, bugno = obj["X-Debian-PR-Message"].split()
+
+    if "X-Debian-PR-Package" in obj:
+        package = obj['X-Debian-PR-Package']
+        klasse = "bug"
+
+    return {
+        "package": package,
+        "bugno": bugno,
+        "action": action,
+        "description": description,
+        "sender": sender,
+        "class": klasse,
+        "id": msid
+    }
+
+
+def _sponsorship_handler(obj):
+    if obj['action'] != "report":
+        return obj
+
+    bugno, package, version = None, None, None
+    subject_regex = "Bug#(\d+): RFS: (.*)/(.*)"
+    for el in re.findall(subject_regex, obj['description']):
+        bugno, package, version = el
+
+    obj['sponsorship_request'] = {
+        "package": package,
+        "version": version
+    }
+    return obj
+
+
+special_cases = {
+    "sponsorship-requests": _sponsorship_handler
+}
+
+
+payload = _get_vitals(email)
+if payload['package'] in special_cases:
+    payload = special_cases[payload['package']](payload)
+
+
+open(payload['id'], 'w').write(json.dumps(payload))
